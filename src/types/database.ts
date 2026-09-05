@@ -202,6 +202,50 @@ export interface Database {
           }
         ];
       };
+      manager_invites: {
+        Row: {
+          id: string;
+          huzur_id: string;
+          invite_code: string;
+          phone: string | null;
+          manager_name: string | null;
+          status: 'pending' | 'accepted' | 'expired' | 'revoked';
+          expires_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          huzur_id: string;
+          invite_code: string;
+          phone?: string | null;
+          manager_name?: string | null;
+          status?: 'pending' | 'accepted' | 'expired' | 'revoked';
+          expires_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          huzur_id?: string;
+          invite_code?: string;
+          phone?: string | null;
+          manager_name?: string | null;
+          status?: 'pending' | 'accepted' | 'expired' | 'revoked';
+          expires_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'manager_invites_huzur_id_fkey';
+            columns: ['huzur_id'];
+            isOneToOne: false;
+            referencedRelation: 'huzurs';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       organizers: {
         Row: {
           id: string;

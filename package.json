@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx tests/verify_phase1.ts && tsx tests/test_exclude_constraint.ts && tsx tests/verify_phase1b.ts"
+    "test": "tsx tests/verify_phase1.ts && tsx tests/test_exclude_constraint.ts && tsx tests/verify_phase1b.ts && tsx tests/verify_phase2.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",
