@@ -27,16 +27,19 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const currentPage = parseInt(page, 10) || 1;
   const pageSize = 6;
 
+  const districtsDict = dict.reference.districts as Record<string, string>;
+  const topicsDict = dict.reference.topics as Record<string, string>;
+
   // Filter speakers based on search parameters
   const filteredHuzurs = SEED_HUZURS.filter((h) => {
-    const translatedDistrict = dict.reference.districts[h.district] || h.district;
-    const translatedTopics = h.huzur_profile.topics.map((t) => dict.reference.topics[t] || t);
+    const translatedDistrict = districtsDict[h.district] || h.district;
+    const translatedTopics = h.huzur_profile.topics.map((t: string) => topicsDict[t] || t);
 
     const matchesQuery =
       !q ||
       h.full_name.toLowerCase().includes(q.toLowerCase()) ||
-      translatedTopics.some((t) => t.toLowerCase().includes(q.toLowerCase())) ||
-      h.huzur_profile.topics.some((t) => t.toLowerCase().includes(q.toLowerCase())) ||
+      translatedTopics.some((t: string) => t.toLowerCase().includes(q.toLowerCase())) ||
+      h.huzur_profile.topics.some((t: string) => t.toLowerCase().includes(q.toLowerCase())) ||
       (h.huzur_profile.designation && h.huzur_profile.designation.toLowerCase().includes(q.toLowerCase()));
 
     const matchesDistrict =
@@ -44,8 +47,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
     const matchesTopic =
       !topic ||
-      h.huzur_profile.topics.some((t) => t === topic) ||
-      translatedTopics.some((t) => t === topic);
+      h.huzur_profile.topics.some((t: string) => t === topic) ||
+      translatedTopics.some((t: string) => t === topic);
 
     return matchesQuery && matchesDistrict && matchesTopic;
   });
@@ -189,12 +192,12 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                 </p>
 
                 <div className="flex flex-wrap gap-1">
-                  {huzur.huzur_profile.topics.map((t) => (
+                  {huzur.huzur_profile.topics.map((t: string) => (
                     <span
                       key={t}
                       className="text-[10px] bg-slate-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded-md"
                     >
-                      {dict.reference.topics[t] || t}
+                      {topicsDict[t] || t}
                     </span>
                   ))}
                 </div>
@@ -202,7 +205,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                 <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 text-xs flex items-center justify-between">
                   <div className="flex items-center gap-1 text-zinc-500">
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>{dict.reference.districts[huzur.district] || huzur.district}</span>
+                    <span>{districtsDict[huzur.district] || huzur.district}</span>
                   </div>
                   <div className="font-semibold text-emerald-700 dark:text-emerald-400">
                     {dict.speakers.hadyaLabel} {huzur.huzur_profile.base_hadya_range}

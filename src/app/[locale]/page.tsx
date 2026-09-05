@@ -213,12 +213,12 @@ export default async function HomePage({ params }: HomePageProps) {
 
                 {/* Topics tags (Reference translated) */}
                 <div className="flex flex-wrap gap-1">
-                  {huzur.huzur_profile.topics.slice(0, 2).map((t) => (
+                  {huzur.huzur_profile.topics.slice(0, 2).map((t: string) => (
                     <span
                       key={t}
                       className="text-[10px] bg-slate-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded-md"
                     >
-                      {dict.reference.topics[t] || t}
+                      {(dict.reference.topics as Record<string, string>)[t] || t}
                     </span>
                   ))}
                   {huzur.huzur_profile.topics.length > 2 && (

@@ -99,12 +99,12 @@ export default async function HuzurProfilePage({ params }: HuzurProfilePageProps
             {dict.huzurDetail.topicsTitle}
           </h2>
           <div className="flex flex-wrap gap-1.5">
-            {huzur.huzur_profile.topics.map((topic) => (
+            {huzur.huzur_profile.topics.map((topic: string) => (
               <span
                 key={topic}
                 className="text-xs bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-lg"
               >
-                {dict.reference.topics[topic] || topic}
+                {(dict.reference.topics as Record<string, string>)[topic] || topic}
               </span>
             ))}
           </div>

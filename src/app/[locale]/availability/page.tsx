@@ -131,7 +131,8 @@ export default function AvailabilityPage() {
             }
 
             const dayDisplay = locale === 'bn' ? `${dayNum} নভেম্বর` : `Nov ${dayNum}`;
-            const districtDisplay = booking ? dict.reference.districts[booking.district] || booking.district : '';
+            const districtStr = booking?.district ? (typeof booking.district === 'string' ? booking.district : booking.district.name) : '';
+            const districtDisplay = districtStr ? (dict.reference.districts as Record<string, string>)[districtStr] || districtStr : '';
 
             return (
               <div

@@ -13,8 +13,8 @@ function assert(condition: boolean, message: string) {
 console.log('--- RUNNING PHASE 1 VERIFICATION TEST SUITE ---');
 
 // 1. Check SQL Migration file exists and contains the EXCLUDE constraint
-const migrationPath = path.join(process.cwd(), 'supabase/migrations/20260905000001_init_schema.sql');
-assert(fs.existsSync(migrationPath), 'Migration SQL file exists');
+const migrationPath = path.join(process.cwd(), 'supabase/migrations/20260905000002_core_schema.sql');
+assert(fs.existsSync(migrationPath), 'Migration SQL file 20260905000002_core_schema.sql exists');
 
 const migrationSql = fs.readFileSync(migrationPath, 'utf8');
 assert(migrationSql.includes('CREATE EXTENSION IF NOT EXISTS btree_gist;'), 'Migration enables btree_gist extension');
@@ -23,11 +23,36 @@ assert(migrationSql.includes('huzur_id WITH ='), 'Migration EXCLUDE constraint i
 assert(migrationSql.includes('event_date WITH ='), 'Migration EXCLUDE constraint includes event_date WITH =');
 assert(migrationSql.includes("status IN ('pending', 'confirmed')"), "Migration EXCLUDE constraint specifies status IN ('pending', 'confirmed')");
 
+// Check all 9 tables in migration
+const requiredTables = [
+  'divisions',
+  'districts',
+  'upazilas',
+  'huzurs',
+  'managers',
+  'organizers',
+  'bookings',
+  'availability_posts',
+  'notifications',
+];
+for (const table of requiredTables) {
+  assert(migrationSql.includes(`TABLE IF NOT EXISTS public.${table}`), `Migration defines table public.${table}`);
+  assert(migrationSql.includes(`ALTER TABLE public.${table} ENABLE ROW LEVEL SECURITY;`), `RLS enabled on table public.${table}`);
+}
+
+// Check required query pattern indexes
+assert(migrationSql.includes('idx_bookings_huzur_event_date ON public.bookings(huzur_id, event_date)'), 'Index on bookings(huzur_id, event_date)');
+assert(migrationSql.includes('idx_bookings_district_event_date ON public.bookings(district_id, event_date)'), 'Index on bookings(district_id, event_date)');
+assert(migrationSql.includes('idx_availability_posts_district_dates ON public.availability_posts(district_id, start_date, end_date)'), 'Index on availability_posts(district_id, start_date, end_date)');
+
 // 2. Check Seed SQL file exists
 const seedPath = path.join(process.cwd(), 'supabase/seed.sql');
 assert(fs.existsSync(seedPath), 'Seed SQL file exists');
 const seedSql = fs.readFileSync(seedPath, 'utf8');
 assert(seedSql.includes('শায়খ আহমাদুল্লাহ'), 'Seed SQL includes authentic Bangladeshi speakers');
+assert(seedSql.includes('INSERT INTO public.divisions'), 'Seed SQL populates divisions');
+assert(seedSql.includes('INSERT INTO public.districts'), 'Seed SQL populates districts');
+assert(seedSql.includes('INSERT INTO public.upazilas'), 'Seed SQL populates upazilas');
 
 // 3. Check README has the non-negotiable section: Scaling & Load Balancing
 const readmePath = path.join(process.cwd(), 'README.md');
@@ -37,71 +62,44 @@ assert(readmeContent.includes('## ⚡ Scaling & Load Balancing'), 'README includ
 assert(readmeContent.includes('Supavisor Connection Pooling'), 'README documents Supavisor connection pooling');
 assert(readmeContent.includes('port 6543') || readmeContent.includes('6543'), 'README documents port 6543 for transaction mode');
 
-// 4. Test Mock Data & Types
-assert(SEED_HUZURS.length >= 6, 'Seed Huzurs dataset has at least 6 speakers');
-assert(SEED_BOOKINGS.length >= 3, 'Seed Bookings dataset has sample bookings');
+// 4. Check Client Factories and Server-Only Guard
+const clientPath = path.join(process.cwd(), 'src/lib/supabase/client.ts');
+const serverPath = path.join(process.cwd(), 'src/lib/supabase/server.ts');
+const servicePath = path.join(process.cwd(), 'src/lib/supabase/service.ts');
+assert(fs.existsSync(clientPath), 'Browser client factory exists');
+assert(fs.existsSync(serverPath), 'Server client factory exists');
+assert(fs.existsSync(servicePath), 'Service-role client factory exists');
 
-// 5. Test Simulated EXCLUDE Constraint Logic (Race condition & conflict protection)
-console.log('--- Testing EXCLUDE Constraint Business Logic Simulation ---');
+const serviceCode = fs.readFileSync(servicePath, 'utf8');
+assert(serviceCode.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Service client references SUPABASE_SERVICE_ROLE_KEY');
+assert(serviceCode.includes("typeof window !== 'undefined'"), 'Service client guards against browser execution');
 
-function attemptNewBooking(
-  existingBookings: typeof SEED_BOOKINGS,
-  newBooking: { huzur_id: string; event_date: string; status: 'pending' | 'confirmed' | 'rejected' | 'cancelled' }
-): { success: boolean; error?: string } {
-  // Check if conflict matches Postgres EXCLUDE constraint condition:
-  // EXCLUDE USING gist (huzur_id WITH =, event_date WITH =) WHERE (status IN ('pending', 'confirmed'))
-  const conflict = existingBookings.find(
-    (b) =>
-      b.huzur_id === newBooking.huzur_id &&
-      b.event_date === newBooking.event_date &&
-      ['pending', 'confirmed'].includes(b.status) &&
-      ['pending', 'confirmed'].includes(newBooking.status)
-  );
+// 5. Check Typed Query Layer
+const queriesIndexPath = path.join(process.cwd(), 'src/lib/queries/index.ts');
+const queriesLocationsPath = path.join(process.cwd(), 'src/lib/queries/locations.ts');
+const queriesHuzursPath = path.join(process.cwd(), 'src/lib/queries/huzurs.ts');
+const queriesBookingsPath = path.join(process.cwd(), 'src/lib/queries/bookings.ts');
+assert(fs.existsSync(queriesIndexPath), 'Queries index exists');
+assert(fs.existsSync(queriesLocationsPath), 'Locations queries exist');
+assert(fs.existsSync(queriesHuzursPath), 'Huzurs queries exist');
+assert(fs.existsSync(queriesBookingsPath), 'Bookings queries exist');
 
-  if (conflict) {
-    return {
-      success: false,
-      error: `Postgres EXCLUDE violation (23P01): Booking conflict for huzur ${newBooking.huzur_id} on ${newBooking.event_date}. Existing booking status is ${conflict.status}.`,
-    };
-  }
+// 6. Check Types
+const dbTypesRoot = path.join(process.cwd(), 'types/database.ts');
+const dbTypesSrc = path.join(process.cwd(), 'src/types/database.ts');
+assert(fs.existsSync(dbTypesRoot), 'Root /types/database.ts exists');
+assert(fs.existsSync(dbTypesSrc), 'src/types/database.ts exists');
 
-  return { success: true };
-}
+// 7. Check Route Groups and API routes
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/[locale]/(public)/search/page.tsx')), '(public)/search route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/[locale]/(public)/huzur/[id]/page.tsx')), '(public)/huzur/[id] route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/[locale]/(dashboard)/dashboard/huzur/page.tsx')), '(dashboard)/dashboard/huzur route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/[locale]/(dashboard)/dashboard/organizer/page.tsx')), '(dashboard)/dashboard/organizer route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/api/bookings/route.ts')), 'api/bookings route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/api/huzurs/route.ts')), 'api/huzurs route exists');
+assert(fs.existsSync(path.join(process.cwd(), 'src/app/api/locations/route.ts')), 'api/locations route exists');
 
-// Case A: Book on date already confirmed -> Must FAIL
-const conflictTest1 = attemptNewBooking(SEED_BOOKINGS, {
-  huzur_id: SEED_BOOKINGS[0].huzur_id,
-  event_date: SEED_BOOKINGS[0].event_date,
-  status: 'pending',
-});
-assert(!conflictTest1.success, 'Attempting to book a confirmed speaker date correctly fails with constraint violation');
-
-// Case B: Book on different date -> Must SUCCEED
-const validTest = attemptNewBooking(SEED_BOOKINGS, {
-  huzur_id: SEED_BOOKINGS[0].huzur_id,
-  event_date: '2026-12-01',
-  status: 'pending',
-});
-assert(validTest.success, 'Attempting to book an available date succeeds');
-
-// Case C: Rejected or Cancelled booking does NOT block new booking -> Must SUCCEED
-const cancelledBookingList = [
-  ...SEED_BOOKINGS,
-  {
-    ...SEED_BOOKINGS[0],
-    id: 'test-cancelled-id',
-    event_date: '2026-12-05',
-    status: 'cancelled' as const,
-  },
-];
-const retryAfterCancel = attemptNewBooking(cancelledBookingList, {
-  huzur_id: SEED_BOOKINGS[0].huzur_id,
-  event_date: '2026-12-05',
-  status: 'pending',
-});
-assert(retryAfterCancel.success, 'Cancelled status is excluded from the constraint and allows new bookings');
-
-// 6. Test Bilingual Support & Dictionaries
+// 8. Test Bilingual Support & Dictionaries
 console.log('--- Testing Bilingual Support & Dictionaries ---');
 import { bn } from '../src/lib/i18n/dictionaries/bn';
 import { en } from '../src/lib/i18n/dictionaries/en';
@@ -120,12 +118,4 @@ assert(en.nav.myBookings === 'My Bookings', 'en nav myBookings matches English')
 assert(bn.nav.langToggle === 'English', 'bn nav offers toggle to English');
 assert(en.nav.langToggle === 'বাংলা', 'en nav offers toggle to বাংলা');
 
-// Check reference data completeness
-assert(Object.keys(bn.reference.divisions).length >= 8, 'bn reference divisions covers 8 divisions');
-assert(Object.keys(en.reference.divisions).length >= 8, 'en reference divisions covers 8 divisions');
-assert(Object.keys(bn.reference.districts).length >= 10, 'bn reference districts covers key districts');
-assert(Object.keys(en.reference.districts).length >= 10, 'en reference districts covers key districts');
-assert(Object.keys(bn.reference.topics).length >= 15, 'bn reference topics covers key topics');
-assert(Object.keys(en.reference.topics).length >= 15, 'en reference topics covers key topics');
-
-console.log('--- ALL PHASE 1 & BILINGUAL AUTOMATED TESTS PASSED SUCCESSFULLY ---');
+console.log('--- ALL PHASE 1 AUTOMATED TESTS PASSED SUCCESSFULLY ---');

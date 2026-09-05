@@ -1,36 +1,444 @@
 // ==============================================================================
-// HUZUR BOOKING PLATFORM — DATABASE TYPES & ENUMS
+// HUZUR BOOKING PLATFORM — SUPABASE GENERATED DATABASE TYPES
+// Target: /types/database.ts & /src/types/database.ts
+// Format: Exact Supabase TypeScript definitions output
 // ==============================================================================
 
-export type UserRole = 'huzur' | 'organizer' | 'admin';
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
 export type BookingStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'completed';
 
-export type SessionSlot = 
-  | 'after_asr'        // বাদ আসর
-  | 'after_maghrib'    // বাদ মাগরিব
-  | 'after_esha'       // বাদ এশা (প্রধান বক্তা / Chief Speaker)
-  | 'all_night'        // শেষ রাত / সারা রাত
-  | 'daytime_special'; // সকাল / জুমআ / বিশেষ অধিবেশন
-
-export interface Profile {
-  id: string;
-  phone: string;
-  role: UserRole;
-  full_name: string;
-  division: string;
-  district: string;
-  upazila_or_area?: string | null;
-  avatar_url?: string | null;
-  bio?: string | null;
-  created_at: string;
-  updated_at: string;
+export interface Database {
+  public: {
+    Tables: {
+      divisions: {
+        Row: {
+          id: number;
+          name: string;
+          bn_name: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          bn_name: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          bn_name?: string;
+        };
+        Relationships: [];
+      };
+      districts: {
+        Row: {
+          id: number;
+          division_id: number;
+          name: string;
+          bn_name: string;
+        };
+        Insert: {
+          id?: number;
+          division_id: number;
+          name: string;
+          bn_name: string;
+        };
+        Update: {
+          id?: number;
+          division_id?: number;
+          name?: string;
+          bn_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'districts_division_id_fkey';
+            columns: ['division_id'];
+            isOneToOne: false;
+            referencedRelation: 'divisions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      upazilas: {
+        Row: {
+          id: number;
+          district_id: number;
+          name: string;
+          bn_name: string;
+        };
+        Insert: {
+          id?: number;
+          district_id: number;
+          name: string;
+          bn_name: string;
+        };
+        Update: {
+          id?: number;
+          district_id?: number;
+          name?: string;
+          bn_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'upazilas_district_id_fkey';
+            columns: ['district_id'];
+            isOneToOne: false;
+            referencedRelation: 'districts';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      huzurs: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          name: string;
+          photo_url: string | null;
+          institution: string | null;
+          bio: string | null;
+          specialties: string[];
+          phone: string | null;
+          home_district_id: number | null;
+          is_verified: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          name: string;
+          photo_url?: string | null;
+          institution?: string | null;
+          bio?: string | null;
+          specialties?: string[];
+          phone?: string | null;
+          home_district_id?: number | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          name?: string;
+          photo_url?: string | null;
+          institution?: string | null;
+          bio?: string | null;
+          specialties?: string[];
+          phone?: string | null;
+          home_district_id?: number | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'huzurs_home_district_id_fkey';
+            columns: ['home_district_id'];
+            isOneToOne: false;
+            referencedRelation: 'districts';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      managers: {
+        Row: {
+          id: string;
+          huzur_id: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          role: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          huzur_id: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          role?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          huzur_id?: string;
+          user_id?: string;
+          name?: string;
+          phone?: string;
+          role?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'managers_huzur_id_fkey';
+            columns: ['huzur_id'];
+            isOneToOne: false;
+            referencedRelation: 'huzurs';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      organizers: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          institution_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          phone: string;
+          institution_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          phone?: string;
+          institution_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      bookings: {
+        Row: {
+          id: string;
+          huzur_id: string;
+          organizer_id: string;
+          event_date: string;
+          division_id: number | null;
+          district_id: number | null;
+          upazila_id: number | null;
+          venue_address: string;
+          event_details: string | null;
+          status: BookingStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          huzur_id: string;
+          organizer_id: string;
+          event_date: string;
+          division_id?: number | null;
+          district_id?: number | null;
+          upazila_id?: number | null;
+          venue_address: string;
+          event_details?: string | null;
+          status?: BookingStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          huzur_id?: string;
+          organizer_id?: string;
+          event_date?: string;
+          division_id?: number | null;
+          district_id?: number | null;
+          upazila_id?: number | null;
+          venue_address?: string;
+          event_details?: string | null;
+          status?: BookingStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bookings_huzur_id_fkey';
+            columns: ['huzur_id'];
+            isOneToOne: false;
+            referencedRelation: 'huzurs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_organizer_id_fkey';
+            columns: ['organizer_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_division_id_fkey';
+            columns: ['division_id'];
+            isOneToOne: false;
+            referencedRelation: 'divisions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_district_id_fkey';
+            columns: ['district_id'];
+            isOneToOne: false;
+            referencedRelation: 'districts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_upazila_id_fkey';
+            columns: ['upazila_id'];
+            isOneToOne: false;
+            referencedRelation: 'upazilas';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      availability_posts: {
+        Row: {
+          id: string;
+          huzur_id: string;
+          start_date: string;
+          end_date: string;
+          division_id: number | null;
+          district_id: number | null;
+          upazila_id: number | null;
+          note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          huzur_id: string;
+          start_date: string;
+          end_date: string;
+          division_id?: number | null;
+          district_id?: number | null;
+          upazila_id?: number | null;
+          note?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          huzur_id?: string;
+          start_date?: string;
+          end_date?: string;
+          division_id?: number | null;
+          district_id?: number | null;
+          upazila_id?: number | null;
+          note?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'availability_posts_huzur_id_fkey';
+            columns: ['huzur_id'];
+            isOneToOne: false;
+            referencedRelation: 'huzurs';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          message: string;
+          is_read: boolean;
+          related_booking_id: string | null;
+          scheduled_at: string | null;
+          sent_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          message: string;
+          is_read?: boolean;
+          related_booking_id?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          message?: string;
+          is_read?: boolean;
+          related_booking_id?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_related_booking_id_fkey';
+            columns: ['related_booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+    };
+    Views: {
+      public_confirmed_schedules: {
+        Row: {
+          booking_id: string;
+          huzur_id: string;
+          event_date: string;
+          division_id: number | null;
+          district_id: number | null;
+          upazila_id: number | null;
+          status: string;
+        };
+      };
+    };
+    Functions: Record<string, never>;
+    Enums: {
+      booking_status: BookingStatus;
+    };
+  };
 }
+
+// Convenience Type Helpers for clean type exports
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+export type Inserts<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
+export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];
+
+export type Division = Tables<'divisions'>;
+export type District = Tables<'districts'>;
+export type Upazila = Tables<'upazilas'>;
+export type Huzur = Tables<'huzurs'>;
+export type Manager = Tables<'managers'>;
+export type Organizer = Tables<'organizers'>;
+export type Booking = Tables<'bookings'>;
+export type AvailabilityPost = Tables<'availability_posts'>;
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type?: string;
+  message?: string;
+  is_read: boolean;
+  related_booking_id?: string | null;
+  booking_id?: string | null;
+  scheduled_at?: string | null;
+  sent_at?: string | null;
+  created_at: string;
+  title?: string;
+  message_bn?: string;
+}
+
+export type Notification = AppNotification;
 
 export interface HuzurProfile {
   id: string;
-  title: string;                 // মাওলানা, মুফতি, শায়খ ইত্যাদি
-  designation?: string | null;   // খতিব, শাইখুল হাদিস
+  title: string;
+  designation?: string | null;
   madrasa_or_institution?: string | null;
   verified: boolean;
   topics: string[];
@@ -43,54 +451,63 @@ export interface HuzurProfile {
   updated_at: string;
 }
 
-export interface HuzurWithProfile extends Profile {
-  huzur_profile: HuzurProfile;
-}
-
-export interface Booking {
+export interface HuzurWithProfile {
   id: string;
-  organizer_id: string;
-  huzur_id: string;
-  event_date: string; // YYYY-MM-DD
-  session_slot: SessionSlot;
-  mahfil_name: string;
+  phone: string;
+  role: 'huzur' | 'organizer' | 'admin';
+  full_name: string;
+  division: string;
   district: string;
-  venue_address: string;
-  contact_person_name: string;
-  contact_phone: string;
-  status: BookingStatus;
-  hadya_offered?: number | null;
-  notes?: string | null;
-  rejection_reason?: string | null;
+  upazila_or_area?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface BookingWithDetails extends Booking {
-  organizer?: Profile;
-  huzur?: HuzurWithProfile;
+  huzur_profile: HuzurProfile;
 }
 
 export interface AvailabilityBlock {
   id: string;
   huzur_id: string;
-  blocked_date: string; // YYYY-MM-DD
+  blocked_date: string;
   reason?: string | null;
   created_at: string;
 }
 
-export interface Notification {
-  id: string;
-  user_id: string;
-  booking_id?: string | null;
-  title: string;
-  message_bn: string;
-  is_read: boolean;
-  metadata?: Record<string, unknown> | null;
-  created_at: string;
+// Joined/Aggregated Types for UI & Queries
+export interface HuzurWithDetails extends Huzur {
+  home_district?: District | null;
+  availability_posts?: AvailabilityPost[];
 }
 
-// Bengali Display Mappings
+export interface BookingWithDetails extends Omit<Booking, 'district_id' | 'division_id' | 'upazila_id' | 'event_details'> {
+  division_id?: number | null;
+  district_id?: number | null;
+  upazila_id?: number | null;
+  event_details?: string | null;
+  district?: District | string | null;
+  huzur?: Huzur | HuzurWithProfile | any | null;
+  organizer?: Organizer | any | null;
+  division?: Division | string | null;
+  upazila?: Upazila | string | null;
+  session_slot?: SessionSlot;
+  mahfil_name?: string;
+  contact_person_name?: string;
+  contact_phone?: string;
+  hadya_offered?: number | null;
+  notes?: string | null;
+  rejection_reason?: string | null;
+}
+
+
+// Bengali UI Display Mappings & Helpers
+export type SessionSlot = 
+  | 'after_asr'
+  | 'after_maghrib'
+  | 'after_esha'
+  | 'all_night'
+  | 'daytime_special';
+
 export const SESSION_SLOT_LABELS_BN: Record<SessionSlot, string> = {
   after_asr: 'বাদ আসর',
   after_maghrib: 'বাদ মাগরিব',
@@ -126,9 +543,9 @@ export const BANGLADESH_DIVISIONS_BN = [
   'ঢাকা',
   'চট্টগ্রাম',
   'রাজশাহী',
-  'সিলেট',
   'খুলনা',
   'বরিশাল',
+  'সিলেট',
   'রংপুর',
   'ময়মনসিংহ',
 ] as const;
@@ -157,3 +574,4 @@ export const POPULAR_TOPICS_BN = [
   'মৃত্যু ও আখিরাতের প্রস্তুতি',
   'সুন্নাহর আলো ও সমকালীন সমাজ',
 ] as const;
+

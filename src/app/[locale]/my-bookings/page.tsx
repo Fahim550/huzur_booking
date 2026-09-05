@@ -86,11 +86,17 @@ export default function MyBookingsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredBookings.map((b) => {
+          {SEED_BOOKINGS.map((b) => {
+            const booking = b as any;
             const statusConfig = BOOKING_STATUS_LABELS_BN[b.status];
             const statusLabel = dict.reference.statuses[b.status] || statusConfig.label;
-            const slotLabel = dict.reference.slots[b.session_slot] || b.session_slot;
-            const districtLabel = dict.reference.districts[b.district] || b.district;
+            const slot = booking.session_slot || 'after_esha';
+            const slotLabel = (dict.reference.slots as Record<string, string>)[slot] || slot;
+            const districtStr = typeof booking.district === 'string' ? booking.district : booking.district?.name || '';
+            const districtLabel = (dict.reference.districts as Record<string, string>)[districtStr] || districtStr;
+
+            const speakerName = booking.huzur?.full_name || booking.huzur?.name || '';
+            const speakerTitle = booking.huzur?.huzur_profile?.title || 'মাওলানা';
 
             return (
               <div
@@ -101,10 +107,10 @@ export default function MyBookingsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
                     <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-                      {b.huzur?.full_name ? `${b.huzur.huzur_profile.title} ${b.huzur.full_name}` : dict.bookings.speakerSelected}
+                      {speakerName ? `${speakerTitle} ${speakerName}` : dict.bookings.speakerSelected}
                     </span>
                     <h2 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-                      {b.mahfil_name}
+                      {booking.mahfil_name || booking.event_details || 'ওয়াজ মাহফিল'}
                     </h2>
                   </div>
                   <span
@@ -131,7 +137,7 @@ export default function MyBookingsPage() {
 
                   <div className="flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                    <span>{dict.bookings.contactLabel} {b.contact_person_name} ({b.contact_phone})</span>
+                    <span>{dict.bookings.contactLabel} {booking.contact_person_name || 'আয়োজক কমিটি'} ({booking.contact_phone || '+8801700000000'})</span>
                   </div>
 
                   <div className="flex items-center gap-1.5">
@@ -139,10 +145,10 @@ export default function MyBookingsPage() {
                     <span>
                       {dict.bookings.hadyaLabel}{' '}
                       <strong className="text-emerald-700 dark:text-emerald-400">
-                        {b.hadya_offered
+                        {booking.hadya_offered
                           ? locale === 'bn'
-                            ? `${b.hadya_offered.toLocaleString('bn-BD')} ৳`
-                            : `BDT ${b.hadya_offered.toLocaleString('en-US')}`
+                            ? `${booking.hadya_offered.toLocaleString('bn-BD')} ৳`
+                            : `BDT ${booking.hadya_offered.toLocaleString('en-US')}`
                           : dict.bookings.negotiable}
                       </strong>
                     </span>
@@ -150,10 +156,10 @@ export default function MyBookingsPage() {
                 </div>
 
                 {/* Notes (User-entered text preserved as-is) */}
-                {b.notes && (
+                {booking.notes && (
                   <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-zinc-800/60 text-xs text-zinc-600 dark:text-zinc-300 flex items-start gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{b.notes}</span>
+                    <span className="line-clamp-2">{booking.notes}</span>
                   </div>
                 )}
               </div>
