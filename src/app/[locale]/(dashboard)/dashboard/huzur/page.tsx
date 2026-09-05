@@ -42,7 +42,14 @@ export default async function HuzurDashboard({ params }: HuzurDashboardProps) {
             </div>
             <div className="flex items-center gap-2">
               <Link
-                href={`/${locale}/availability`}
+                href={`/${locale}/dashboard/calendar`}
+                className="px-4 py-2.5 bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm flex items-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>{locale === 'bn' ? 'ক্যালেন্ডার ভিউ' : 'Calendar View'}</span>
+              </Link>
+              <Link
+                href={`/${locale}/dashboard/calendar`}
                 className="px-4 py-2.5 bg-white text-emerald-900 rounded-xl text-sm font-semibold hover:bg-emerald-50 transition-colors shadow-sm"
               >
                 {locale === 'bn' ? 'তারিখ উন্মুক্ত করুন' : 'Post Availability'}

@@ -107,6 +107,10 @@ async function handleProxy(request: NextRequest) {
       return NextResponse.redirect(new URL(`/${locale}/dashboard/organizer`, request.url));
     }
 
+    if (subPath.startsWith('/dashboard/calendar') && role === 'organizer') {
+      return NextResponse.redirect(new URL(`/${locale}/dashboard/organizer`, request.url));
+    }
+
     if (subPath.startsWith('/dashboard/organizer') && role === 'huzur') {
       return NextResponse.redirect(new URL(`/${locale}/dashboard/huzur`, request.url));
     }
