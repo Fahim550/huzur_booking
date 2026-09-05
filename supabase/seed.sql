@@ -4,116 +4,143 @@
 -- ==============================================================================
 
 -- 1. Seed Bangladesh 8 Administrative Divisions
-INSERT INTO public.divisions (id, name, bn_name) VALUES
-    (1, 'Dhaka', 'ঢাকা'),
-    (2, 'Chattogram', 'চট্টগ্রাম'),
-    (3, 'Rajshahi', 'রাজশাহী'),
-    (4, 'Khulna', 'খুলনা'),
-    (5, 'Barishal', 'বরিশাল'),
-    (6, 'Sylhet', 'সিলেট'),
-    (7, 'Rangpur', 'রংপুর'),
-    (8, 'Mymensingh', 'ময়মনসিংহ')
+INSERT INTO public.divisions (id, name, bn_name, name_en, name_bn) VALUES
+    (1, 'Dhaka', 'ঢাকা', 'Dhaka', 'ঢাকা'),
+    (2, 'Chattogram', 'চট্টগ্রাম', 'Chattogram', 'চট্টগ্রাম'),
+    (3, 'Rajshahi', 'রাজশাহী', 'Rajshahi', 'রাজশাহী'),
+    (4, 'Khulna', 'খুলনা', 'Khulna', 'খুলনা'),
+    (5, 'Barishal', 'বরিশাল', 'Barishal', 'বরিশাল'),
+    (6, 'Sylhet', 'সিলেট', 'Sylhet', 'সিলেট'),
+    (7, 'Rangpur', 'রংপুর', 'Rangpur', 'রংপুর'),
+    (8, 'Mymensingh', 'ময়মনসিংহ', 'Mymensingh', 'ময়মনসিংহ')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
-    bn_name = EXCLUDED.bn_name;
+    bn_name = EXCLUDED.bn_name,
+    name_en = EXCLUDED.name_en,
+    name_bn = EXCLUDED.name_bn;
 
 -- Reset sequence for divisions
 SELECT setval(pg_get_serial_sequence('public.divisions', 'id'), (SELECT MAX(id) FROM public.divisions));
 
 -- 2. Seed Bangladesh Districts (Key representation across all 8 divisions)
-INSERT INTO public.districts (id, division_id, name, bn_name) VALUES
+INSERT INTO public.districts (id, division_id, name, bn_name, name_en, name_bn) VALUES
     -- Dhaka Division
-    (1, 1, 'Dhaka', 'ঢাকা'),
-    (2, 1, 'Gazipur', 'গাজীপুর'),
-    (3, 1, 'Narayanganj', 'নারায়ণগঞ্জ'),
-    (4, 1, 'Tangail', 'টাঙ্গাইল'),
-    (5, 1, 'Faridpur', 'ফরিদপুর'),
-    (6, 1, 'Narsingdi', 'নরসিংদী'),
-    (7, 1, 'Manikganj', 'মানিকগঞ্জ'),
-    (8, 1, 'Munshiganj', 'মুন্সীগঞ্জ'),
+    (1, 1, 'Dhaka', 'ঢাকা', 'Dhaka', 'ঢাকা'),
+    (2, 1, 'Gazipur', 'গাজীপুর', 'Gazipur', 'গাজীপুর'),
+    (3, 1, 'Narayanganj', 'নারায়ণগঞ্জ', 'Narayanganj', 'নারায়ণগঞ্জ'),
+    (4, 1, 'Tangail', 'টাঙ্গাইল', 'Tangail', 'টাঙ্গাইল'),
+    (5, 1, 'Faridpur', 'ফরিদপুর', 'Faridpur', 'ফরিদপুর'),
+    (6, 1, 'Narsingdi', 'নরসিংদী', 'Narsingdi', 'নরসিংদী'),
+    (7, 1, 'Manikganj', 'মানিকগঞ্জ', 'Manikganj', 'মানিকগঞ্জ'),
+    (8, 1, 'Munshiganj', 'মুন্সীগঞ্জ', 'Munshiganj', 'মুন্সীগঞ্জ'),
     -- Chattogram Division
-    (9, 2, 'Chattogram', 'চট্টগ্রাম'),
-    (10, 2, 'Cumilla', 'কুমিল্লা'),
-    (11, 2, 'Brahmanbaria', 'ব্রাহ্মণবাড়িয়া'),
-    (12, 2, 'Feni', 'ফেনী'),
-    (13, 2, 'Noakhali', 'নোয়াখালী'),
-    (14, 2, 'Chandpur', 'চাঁদপুর'),
-    (15, 2, 'Coxs Bazar', 'কক্সবাজার'),
+    (9, 2, 'Chattogram', 'চট্টগ্রাম', 'Chattogram', 'চট্টগ্রাম'),
+    (10, 2, 'Cumilla', 'কুমিল্লা', 'Cumilla', 'কুমিল্লা'),
+    (11, 2, 'Brahmanbaria', 'ব্রাহ্মণবাড়িয়া', 'Brahmanbaria', 'ব্রাহ্মণবাড়িয়া'),
+    (12, 2, 'Feni', 'ফেনী', 'Feni', 'ফেনী'),
+    (13, 2, 'Noakhali', 'নোয়াখালী', 'Noakhali', 'নোয়াখালী'),
+    (14, 2, 'Chandpur', 'চাঁদপুর', 'Chandpur', 'চাঁদপুর'),
+    (15, 2, 'Coxs Bazar', 'কক্সবাজার', 'Coxs Bazar', 'কক্সবাজার'),
     -- Rajshahi Division
-    (16, 3, 'Rajshahi', 'রাজশাহী'),
-    (17, 3, 'Bogura', 'বগুড়া'),
-    (18, 3, 'Pabna', 'পাবনা'),
-    (19, 3, 'Sirajganj', 'সিরাজগঞ্জ'),
-    (20, 3, 'Naogaon', 'নওগাঁ'),
+    (16, 3, 'Rajshahi', 'রাজশাহী', 'Rajshahi', 'রাজশাহী'),
+    (17, 3, 'Bogura', 'বগুড়া', 'Bogura', 'বগুড়া'),
+    (18, 3, 'Pabna', 'পাবনা', 'Pabna', 'পাবনা'),
+    (19, 3, 'Sirajganj', 'সিরাজগঞ্জ', 'Sirajganj', 'সিরাজগঞ্জ'),
+    (20, 3, 'Naogaon', 'নওগাঁ', 'Naogaon', 'নওগাঁ'),
     -- Khulna Division
-    (21, 4, 'Khulna', 'খুলনা'),
-    (22, 4, 'Jashore', 'যশোর'),
-    (23, 4, 'Kushtia', 'কুষ্টিয়া'),
-    (24, 4, 'Satkhira', 'সাতক্ষীরা'),
-    (25, 4, 'Bagerhat', 'বাগেরহাট'),
+    (21, 4, 'Khulna', 'খুলনা', 'Khulna', 'খুলনা'),
+    (22, 4, 'Jashore', 'যশোর', 'Jashore', 'যশোর'),
+    (23, 4, 'Kushtia', 'কুষ্টিয়া', 'Kushtia', 'কুষ্টিয়া'),
+    (24, 4, 'Satkhira', 'সাতক্ষীরা', 'Satkhira', 'সাতক্ষীরা'),
+    (25, 4, 'Bagerhat', 'বাগেরহাট', 'Bagerhat', 'বাগেরহাট'),
     -- Barishal Division
-    (26, 5, 'Barishal', 'বরিশাল'),
-    (27, 5, 'Bhola', 'ভোলা'),
-    (28, 5, 'Patuakhali', 'পটুয়াখালী'),
-    (29, 5, 'Pirojpur', 'পিরোজপুর'),
+    (26, 5, 'Barishal', 'বরিশাল', 'Barishal', 'বরিশাল'),
+    (27, 5, 'Bhola', 'ভোলা', 'Bhola', 'ভোলা'),
+    (28, 5, 'Patuakhali', 'পটুয়াখালী', 'Patuakhali', 'পটুয়াখালী'),
+    (29, 5, 'Pirojpur', 'পিরোজপুর', 'Pirojpur', 'পিরোজপুর'),
     -- Sylhet Division
-    (30, 6, 'Sylhet', 'সিলেট'),
-    (31, 6, 'Moulvibazar', 'মৌলভীবাজার'),
-    (32, 6, 'Habiganj', 'হবিগঞ্জ'),
-    (33, 6, 'Sunamganj', 'সুনামগঞ্জ'),
+    (30, 6, 'Sylhet', 'সিলেট', 'Sylhet', 'সিলেট'),
+    (31, 6, 'Moulvibazar', 'মৌলভীবাজার', 'Moulvibazar', 'মৌলভীবাজার'),
+    (32, 6, 'Habiganj', 'হবিগঞ্জ', 'Habiganj', 'হবিগঞ্জ'),
+    (33, 6, 'Sunamganj', 'সুনামগঞ্জ', 'Sunamganj', 'সুনামগঞ্জ'),
     -- Rangpur Division
-    (34, 7, 'Rangpur', 'রংপুর'),
-    (35, 7, 'Dinajpur', 'দিনাজপুর'),
-    (36, 7, 'Kurigram', 'কুড়িগ্রাম'),
-    (37, 7, 'Gaibandha', 'গাইবান্ধা'),
+    (34, 7, 'Rangpur', 'রংপুর', 'Rangpur', 'রংপুর'),
+    (35, 7, 'Dinajpur', 'দিনাজপুর', 'Dinajpur', 'দিনাজপুর'),
+    (36, 7, 'Kurigram', 'কুড়িগ্রাম', 'Kurigram', 'কুড়িগ্রাম'),
+    (37, 7, 'Gaibandha', 'গাইবান্ধা', 'Gaibandha', 'গাইবান্ধা'),
     -- Mymensingh Division
-    (38, 8, 'Mymensingh', 'ময়মনসিংহ'),
-    (39, 8, 'Jamalpur', 'জামালপুর'),
-    (40, 8, 'Netrokona', 'নেত্রকোণা'),
-    (41, 8, 'Sherpur', 'শেরপুর')
+    (38, 8, 'Mymensingh', 'ময়মনসিংহ', 'Mymensingh', 'ময়মনসিংহ'),
+    (39, 8, 'Jamalpur', 'জামালপুর', 'Jamalpur', 'জামালপুর'),
+    (40, 8, 'Netrokona', 'নেত্রকোণা', 'Netrokona', 'নেত্রকোণা'),
+    (41, 8, 'Sherpur', 'শেরপুর', 'Sherpur', 'শেরপুর')
 ON CONFLICT (id) DO UPDATE SET
     division_id = EXCLUDED.division_id,
     name = EXCLUDED.name,
-    bn_name = EXCLUDED.bn_name;
+    bn_name = EXCLUDED.bn_name,
+    name_en = EXCLUDED.name_en,
+    name_bn = EXCLUDED.name_bn;
 
 SELECT setval(pg_get_serial_sequence('public.districts', 'id'), (SELECT MAX(id) FROM public.districts));
 
 -- 3. Seed Key Upazilas
-INSERT INTO public.upazilas (id, district_id, name, bn_name) VALUES
+INSERT INTO public.upazilas (id, district_id, name, bn_name, name_en, name_bn) VALUES
     -- Dhaka District
-    (1, 1, 'Badda', 'বাড্ডা'),
-    (2, 1, 'Uttara', 'উত্তরা'),
-    (3, 1, 'Mirpur', 'মিরপুর'),
-    (4, 1, 'Dhanmondi', 'ধানমন্ডি'),
-    (5, 1, 'Mohammadpur', 'মোহাম্মদপুর'),
+    (1, 1, 'Badda', 'বাড্ডা', 'Badda', 'বাড্ডা'),
+    (2, 1, 'Uttara', 'উত্তরা', 'Uttara', 'উত্তরা'),
+    (3, 1, 'Mirpur', 'মিরপুর', 'Mirpur', 'মিরপুর'),
+    (4, 1, 'Dhanmondi', 'ধানমন্ডি', 'Dhanmondi', 'ধানমন্ডি'),
+    (5, 1, 'Mohammadpur', 'মোহাম্মদপুর', 'Mohammadpur', 'মোহাম্মদপুর'),
     -- Cumilla District
-    (6, 10, 'Laksam', 'লাকসাম'),
-    (7, 10, 'Chauddagram', 'চৌদ্দগ্রাম'),
-    (8, 10, 'Debidwar', 'দেবীদ্বার'),
-    (9, 10, 'Burichang', 'বুড়িচং'),
+    (6, 10, 'Laksam', 'লাকসাম', 'Laksam', 'লাকসাম'),
+    (7, 10, 'Chauddagram', 'চৌদ্দগ্রাম', 'Chauddagram', 'চৌদ্দগ্রাম'),
+    (8, 10, 'Debidwar', 'দেবীদ্বার', 'Debidwar', 'দেবীদ্বার'),
+    (9, 10, 'Burichang', 'বুড়িচং', 'Burichang', 'বুড়িচং'),
     -- Bogura District
-    (10, 17, 'Sherpur', 'শেরপুর'),
-    (11, 17, 'Bogra Sadar', 'বগুড়া সদর'),
-    (12, 17, 'Shibganj', 'শিবগঞ্জ'),
+    (10, 17, 'Sherpur', 'শেরপুর', 'Sherpur', 'শেরপুর'),
+    (11, 17, 'Bogra Sadar', 'বগুড়া সদর', 'Bogra Sadar', 'বগুড়া সদর'),
+    (12, 17, 'Shibganj', 'শিবগঞ্জ', 'Shibganj', 'শিবগঞ্জ'),
     -- Kushtia District
-    (13, 23, 'Kumarkhali', 'কুমারখালী'),
-    (14, 23, 'Kushtia Sadar', 'কুষ্টিয়া সদর'),
+    (13, 23, 'Kumarkhali', 'কুমারখালী', 'Kumarkhali', 'কুমারখালী'),
+    (14, 23, 'Kushtia Sadar', 'কুষ্টিয়া সদর', 'Kushtia Sadar', 'কুষ্টিয়া সদর'),
     -- Sylhet District
-    (15, 30, 'Sylhet Sadar', 'সিলেট সদর'),
-    (16, 30, 'Golapganj', 'গোলাপগঞ্জ'),
-    (17, 30, 'Beanibazar', 'বিয়ানীবাজার'),
+    (15, 30, 'Sylhet Sadar', 'সিলেট সদর', 'Sylhet Sadar', 'সিলেট সদর'),
+    (16, 30, 'Golapganj', 'গোলাপগঞ্জ', 'Golapganj', 'গোলাপগঞ্জ'),
+    (17, 30, 'Beanibazar', 'বিয়ানীবাজার', 'Beanibazar', 'বিয়ানীবাজার'),
     -- Feni District
-    (18, 12, 'Daganbhuiyan', 'দাগনভূঞা'),
-    (19, 12, 'Feni Sadar', 'ফেনী সদর'),
+    (18, 12, 'Daganbhuiyan', 'দাগনভূঞা', 'Daganbhuiyan', 'দাগনভূঞা'),
+    (19, 12, 'Feni Sadar', 'ফেনী সদর', 'Feni Sadar', 'ফেনী সদর'),
     -- Brahmanbaria District
-    (20, 11, 'Kasba', 'কসবা'),
-    (21, 11, 'Brahmanbaria Sadar', 'ব্রাহ্মণবাড়িয়া সদর')
+    (20, 11, 'Kasba', 'কসবা', 'Kasba', 'কসবা'),
+    (21, 11, 'Brahmanbaria Sadar', 'ব্রাহ্মণবাড়িয়া সদর', 'Brahmanbaria Sadar', 'ব্রাহ্মণবাড়িয়া সদর')
 ON CONFLICT (id) DO UPDATE SET
     district_id = EXCLUDED.district_id,
     name = EXCLUDED.name,
-    bn_name = EXCLUDED.bn_name;
+    bn_name = EXCLUDED.bn_name,
+    name_en = EXCLUDED.name_en,
+    name_bn = EXCLUDED.name_bn;
 
 SELECT setval(pg_get_serial_sequence('public.upazilas', 'id'), (SELECT MAX(id) FROM public.upazilas));
+
+-- 4. Seed Specialties Reference Table (Bilingual Filter Chips)
+INSERT INTO public.specialties (id, slug, name_en, name_bn, description_en, description_bn, display_order) VALUES
+    (1, 'tafsir', 'Tafseer & Quranic Exegesis', 'তাফসীরুল কুরআন', 'Quranic exegesis and linguistic commentary', 'পবিত্র কুরআনের আয়াতভিত্তিক বিশ্লেষণ ও তাফসীর', 1),
+    (2, 'hadith', 'Hadith & Sunnah', 'হাদীস ও সুন্নাহ', 'Prophetic traditions and authentic sunnah', 'রাসূলুল্লাহ (সা.)-এর সুন্নাহ ও সহীহ হাদীসের দিকনির্দেশনা', 2),
+    (3, 'seerat', 'Seerat-un-Nabi (PBUH)', 'সীরাতুন্নবী (সা.)', 'Life and character of the Prophet Muhammad (PBUH)', 'প্রিয় নবী হযরত মুহাম্মদ (সা.)-এর পবিত্র জীবনী ও আদর্শ', 3),
+    (4, 'waz', 'Waz & Naseehat', 'ওয়াজ ও নসীহত', 'Public Islamic lectures and spiritual admonition', 'সাধারণের হেদায়েতমূলক দ্বীনি আলোচনা ও আধ্যাত্মিক নসীহত', 4),
+    (5, 'fiqh', 'Fiqh & Islamic Law', 'ফিকহ ও ফতোয়া', 'Islamic jurisprudence and contemporary ruling', 'দৈনন্দিন মাসআলা-মাসায়েল ও সমসাময়িক ফিকহি সমাধান', 5),
+    (6, 'aqeedah', 'Islamic Aqeedah', 'ইসলামী আকীদা', 'Islamic creed and theological fundamentals', 'বিশুদ্ধ ইসলামী বিশ্বাস ও আকীদাগত সুরক্ষা', 6),
+    (7, 'youth_family', 'Youth & Family Guidance', 'যুবসমাজ ও পারিবারিক জীবন', 'Islamic guidance for contemporary youth and parenting', 'তরুণ সমাজের চরিত্র গঠন ও ইসলামী পরিবার গঠন', 7),
+    (8, 'qiraat', 'Qira''at & Tajweed', 'শবে ক্বিরাআত ও তাজবীদ', 'Quran recitation and phonetics', 'বিশুদ্ধ তিলাওয়াত ও তাজবীদের বিশেষ মাহফিল', 8)
+ON CONFLICT (id) DO UPDATE SET
+    slug = EXCLUDED.slug,
+    name_en = EXCLUDED.name_en,
+    name_bn = EXCLUDED.name_bn,
+    description_en = EXCLUDED.description_en,
+    description_bn = EXCLUDED.description_bn,
+    display_order = EXCLUDED.display_order;
+
+SELECT setval(pg_get_serial_sequence('public.specialties', 'id'), (SELECT MAX(id) FROM public.specialties));
+
 
 -- 4. Seed Huzurs (Islamic Speakers)
 INSERT INTO public.huzurs (id, name, photo_url, institution, bio, specialties, phone, home_district_id, is_verified)

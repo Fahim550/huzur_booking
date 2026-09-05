@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from 'next';
+import { notFound } from 'next/navigation';
 import { Hind_Siliguri, Inter } from 'next/font/google';
 import '../globals.css';
 import TopHeader from '@/components/navigation/TopHeader';
 import BottomNav from '@/components/navigation/BottomNav';
 import QueryProvider from '@/providers/QueryProvider';
-import { LOCALES, Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
+import { routing, Locale } from '@/i18n/routing';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 
 const hindSiliguri = Hind_Siliguri({
@@ -31,7 +34,7 @@ export const viewport: Viewport = {
 };
 
 export async function generateStaticParams() {
-  return LOCALES.map((locale) => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 export async function generateMetadata({
@@ -40,7 +43,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  if (!routing.locales.includes(rawLocale as Locale)) {
+    return {};
+  }
+  const locale = rawLocale as Locale;
   const dict = getDictionary(locale);
 
   return {
@@ -51,6 +57,13 @@ export async function generateMetadata({
         ? ['হুজুর বুকিং', 'ওয়াজ মাহফিল', 'ইসলামিক বক্তা', 'মাহফিল শিডিউল', 'মাওলানা বুকিং']
         : ['Huzur Booking', 'Waz Mahfil', 'Islamic Speaker', 'Mahfil Schedule', 'Maulana Booking Bangladesh'],
     authors: [{ name: dict.brand.name }],
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        bn: '/bn',
+        en: '/en',
+      },
+    },
     icons: {
       icon: '/favicon.ico',
     },
@@ -65,7 +78,19 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  // Validate locale
+  if (!routing.locales.includes(rawLocale as Locale)) {
+    notFound();
+  }
+
+  const locale = rawLocale as Locale;
+
+  // Enable static rendering
+  setRequestLocale(locale);
+
+  // Retrieve messages for next-intl
+  const messages = await getMessages();
 
   const fontClass =
     locale === 'bn'
@@ -75,24 +100,26 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${hindSiliguri.variable} ${inter.variable} h-full antialiased`}
       dir="ltr"
+      className={`${hindSiliguri.variable} ${inter.variable} h-full antialiased`}
     >
       <body className={`min-h-full flex flex-col bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 ${fontClass} selection:bg-emerald-200 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100`}>
-        <QueryProvider>
-          <div className="flex flex-col min-h-screen w-full">
-            {/* Sticky Top Header with Desktop Language Switcher */}
-            <TopHeader locale={locale} />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <QueryProvider>
+            <div className="flex flex-col min-h-screen w-full">
+              {/* Sticky Top Header with Desktop Language Switcher */}
+              <TopHeader locale={locale} />
 
-            {/* Main Page Area — Mobile-First (Base 375px upwards) */}
-            <main className="flex-1 w-full max-w-6xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6">
-              {children}
-            </main>
+              {/* Main Page Area — Mobile-First (Base 375px upwards) */}
+              <main className="flex-1 w-full max-w-6xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6">
+                {children}
+              </main>
 
-            {/* Fixed Mobile Bottom Navigation Bar (< 768px) with 1-Tap Language Switcher */}
-            <BottomNav locale={locale} />
-          </div>
-        </QueryProvider>
+              {/* Fixed Mobile Bottom Navigation Bar (< 768px) with 1-Tap Language Switcher */}
+              <BottomNav locale={locale} />
+            </div>
+          </QueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

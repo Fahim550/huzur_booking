@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx tests/verify_phase1.ts && tsx tests/test_exclude_constraint.ts"
+    "test": "tsx tests/verify_phase1.ts && tsx tests/test_exclude_constraint.ts && tsx tests/verify_phase1b.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",
@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.41.0",
     "next": "16.3.4",
+    "next-intl": "^4.14.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0"

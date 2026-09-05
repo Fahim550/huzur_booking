@@ -22,16 +22,22 @@ export interface Database {
           id: number;
           name: string;
           bn_name: string;
+          name_en: string;
+          name_bn: string;
         };
         Insert: {
           id?: number;
           name: string;
           bn_name: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Update: {
           id?: number;
           name?: string;
           bn_name?: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Relationships: [];
       };
@@ -41,18 +47,24 @@ export interface Database {
           division_id: number;
           name: string;
           bn_name: string;
+          name_en: string;
+          name_bn: string;
         };
         Insert: {
           id?: number;
           division_id: number;
           name: string;
           bn_name: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Update: {
           id?: number;
           division_id?: number;
           name?: string;
           bn_name?: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Relationships: [
           {
@@ -70,18 +82,24 @@ export interface Database {
           district_id: number;
           name: string;
           bn_name: string;
+          name_en: string;
+          name_bn: string;
         };
         Insert: {
           id?: number;
           district_id: number;
           name: string;
           bn_name: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Update: {
           id?: number;
           district_id?: number;
           name?: string;
           bn_name?: string;
+          name_en?: string;
+          name_bn?: string;
         };
         Relationships: [
           {
@@ -383,6 +401,39 @@ export interface Database {
           }
         ];
       };
+      specialties: {
+        Row: {
+          id: number;
+          slug: string;
+          name_en: string;
+          name_bn: string;
+          description_en: string | null;
+          description_bn: string | null;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          slug: string;
+          name_en: string;
+          name_bn: string;
+          description_en?: string | null;
+          description_bn?: string | null;
+          display_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          slug?: string;
+          name_en?: string;
+          name_bn?: string;
+          description_en?: string | null;
+          description_bn?: string | null;
+          display_order?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       public_confirmed_schedules: {
@@ -417,6 +468,18 @@ export type Manager = Tables<'managers'>;
 export type Organizer = Tables<'organizers'>;
 export type Booking = Tables<'bookings'>;
 export type AvailabilityPost = Tables<'availability_posts'>;
+export type Specialty = Tables<'specialties'>;
+
+export function getLocalizedName(
+  entity: { name_en?: string; name_bn?: string; name?: string; bn_name?: string } | null | undefined,
+  locale: string = 'bn'
+): string {
+  if (!entity) return '';
+  if (locale === 'en') {
+    return entity.name_en || entity.name || entity.name_bn || entity.bn_name || '';
+  }
+  return entity.name_bn || entity.bn_name || entity.name_en || entity.name || '';
+}
 
 export interface AppNotification {
   id: string;

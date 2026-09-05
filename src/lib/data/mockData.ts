@@ -265,3 +265,62 @@ export const SEED_NOTIFICATIONS: Notification[] = [
     created_at: '2026-09-04T09:31:00Z',
   },
 ];
+
+export interface SeedDivision {
+  id: number;
+  name: string;
+  bn_name: string;
+  name_en: string;
+  name_bn: string;
+}
+
+export interface SeedDistrict {
+  id: number;
+  division_id: number;
+  name: string;
+  bn_name: string;
+  name_en: string;
+  name_bn: string;
+}
+
+export interface SeedSpecialty {
+  id: number;
+  slug: string;
+  name_en: string;
+  name_bn: string;
+  display_order: number;
+}
+
+export const SEED_DIVISIONS: SeedDivision[] = [
+  { id: 1, name: 'Dhaka', bn_name: 'ঢাকা', name_en: 'Dhaka', name_bn: 'ঢাকা' },
+  { id: 2, name: 'Chattogram', bn_name: 'চট্টগ্রাম', name_en: 'Chattogram', name_bn: 'চট্টগ্রাম' },
+  { id: 3, name: 'Rajshahi', bn_name: 'রাজশাহী', name_en: 'Rajshahi', name_bn: 'রাজশাহী' },
+  { id: 4, name: 'Khulna', bn_name: 'খুলনা', name_en: 'Khulna', name_bn: 'খুলনা' },
+  { id: 5, name: 'Barishal', bn_name: 'বরিশাল', name_en: 'Barishal', name_bn: 'বরিশাল' },
+  { id: 6, name: 'Sylhet', bn_name: 'সিলেট', name_en: 'Sylhet', name_bn: 'সিলেট' },
+  { id: 7, name: 'Rangpur', bn_name: 'রংপুর', name_en: 'Rangpur', name_bn: 'রংপুর' },
+  { id: 8, name: 'Mymensingh', bn_name: 'ময়মনসিংহ', name_en: 'Mymensingh', name_bn: 'ময়মনসিংহ' },
+];
+
+export const SEED_DISTRICTS: SeedDistrict[] = [
+  { id: 1, division_id: 1, name: 'Dhaka', bn_name: 'ঢাকা', name_en: 'Dhaka', name_bn: 'ঢাকা' },
+  { id: 9, division_id: 2, name: 'Chattogram', bn_name: 'চট্টগ্রাম', name_en: 'Chattogram', name_bn: 'চট্টগ্রাম' },
+  { id: 10, division_id: 2, name: 'Cumilla', bn_name: 'কুমিল্লা', name_en: 'Cumilla', name_bn: 'কুমিল্লা' },
+  { id: 11, division_id: 2, name: 'Brahmanbaria', bn_name: 'ব্রাহ্মণবাড়িয়া', name_en: 'Brahmanbaria', name_bn: 'ব্রাহ্মণবাড়িয়া' },
+  { id: 12, division_id: 2, name: 'Feni', bn_name: 'ফেনী', name_en: 'Feni', name_bn: 'ফেনী' },
+  { id: 17, division_id: 3, name: 'Bogura', bn_name: 'বগুড়া', name_en: 'Bogura', name_bn: 'বগুড়া' },
+  { id: 23, division_id: 4, name: 'Kushtia', bn_name: 'কুষ্টিয়া', name_en: 'Kushtia', name_bn: 'কুষ্টিয়া' },
+  { id: 30, division_id: 6, name: 'Sylhet', bn_name: 'সিলেট', name_en: 'Sylhet', name_bn: 'সিলেট' },
+];
+
+export const SEED_SPECIALTIES: SeedSpecialty[] = [
+  { id: 1, slug: 'tafsir', name_en: 'Tafseer & Quranic Exegesis', name_bn: 'তাফসীরুল কুরআন', display_order: 1 },
+  { id: 2, slug: 'hadith', name_en: 'Hadith & Sunnah', name_bn: 'হাদীস ও সুন্নাহ', display_order: 2 },
+  { id: 3, slug: 'seerat', name_en: 'Seerat-un-Nabi (PBUH)', name_bn: 'সীরাতুন্নবী (সা.)', display_order: 3 },
+  { id: 4, slug: 'waz', name_en: 'Waz & Spiritual Admonition', name_bn: 'ওয়াজ ও নসীহত', display_order: 4 },
+  { id: 5, slug: 'fiqh', name_en: 'Fiqh & Contemporary Issues', name_bn: 'ফিকহ ও ফতোয়া', display_order: 5 },
+  { id: 6, slug: 'aqeedah', name_en: 'Islamic Aqeedah', name_bn: 'ইসলামী আকীদা', display_order: 6 },
+  { id: 7, slug: 'youth_family', name_en: 'Youth & Family Life', name_bn: 'যুবসমাজ ও পরিবার', display_order: 7 },
+  { id: 8, slug: 'qiraat', name_en: 'Qira\'at & Tajweed', name_bn: 'ক্বিরাআত ও তাজবীদ', display_order: 8 },
+];
+
