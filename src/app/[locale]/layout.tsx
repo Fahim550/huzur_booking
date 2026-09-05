@@ -11,16 +11,19 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 
 const hindSiliguri = Hind_Siliguri({
-  subsets: ['bengali', 'latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['bengali'],
+  weight: ['400', '600'],
   variable: '--font-hind-siliguri',
   display: 'swap',
+  preload: false,
 });
 
 const inter = Inter({
   subsets: ['latin'],
+  weight: ['400', '600'],
   variable: '--font-inter',
   display: 'swap',
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -103,6 +106,10 @@ export default async function LocaleLayout({
       dir="ltr"
       className={`${hindSiliguri.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body className={`min-h-full flex flex-col bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 ${fontClass} selection:bg-emerald-200 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>

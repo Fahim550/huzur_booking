@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
 
       // Revalidate search and huzur profile cache
       try {
+        revalidateTag('search-results', 'max');
         revalidateTag('huzur-search', 'max');
         revalidateTag(`huzur-${huzur_id}`, 'max');
       } catch (revalErr) {

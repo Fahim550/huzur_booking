@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { Calendar, Clock, Sparkles, FileCheck } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import HuzurScheduleCalendar from './HuzurScheduleCalendar';
-import HuzurBookingModal from './HuzurBookingModal';
+
+const HuzurBookingModal = dynamic(() => import('./HuzurBookingModal'), {
+  ssr: false,
+});
 import type { Division, District, Upazila } from '@/types/database';
 import { Locale } from '@/lib/i18n/config';
 

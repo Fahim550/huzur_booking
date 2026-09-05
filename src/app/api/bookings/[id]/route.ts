@@ -27,22 +27,25 @@ export async function PATCH(
       return NextResponse.json({ error: error || 'Failed to update booking status' }, { status: 400 });
     }
 
-    // Revalidate huzur profile and calendar pages
-    if (booking.huzur_id) {
-      try {
+    // Revalidate huzur profile, calendar, and search listings
+    try {
+      revalidateTag('search-results', 'max');
+      if (booking.huzur_id) {
         revalidateTag(`huzur-${booking.huzur_id}`, 'max');
-      } catch (revalErr) {
-        console.warn('Revalidate error:', revalErr);
       }
-
-      try {
-        revalidatePath(`/bn/huzur/${booking.huzur_id}`);
-        revalidatePath(`/en/huzur/${booking.huzur_id}`);
-        revalidatePath(`/huzur/${booking.huzur_id}`);
-      } catch {}
+    } catch (revalErr) {
+      console.warn('Revalidate error:', revalErr);
     }
 
     try {
+      if (booking.huzur_id) {
+        revalidatePath(`/bn/huzur/${booking.huzur_id}`);
+        revalidatePath(`/en/huzur/${booking.huzur_id}`);
+        revalidatePath(`/huzur/${booking.huzur_id}`);
+      }
+      revalidatePath('/bn/search');
+      revalidatePath('/en/search');
+      revalidatePath('/search');
       revalidatePath('/bn/dashboard/calendar');
       revalidatePath('/en/dashboard/calendar');
       revalidatePath('/bn/my-bookings');

@@ -4,6 +4,9 @@ import { Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 import HuzurDashboardHomeClient from '@/components/dashboard/HuzurDashboardHomeClient';
 
+// Private dashboard: Prevent caching into shared CDN layers
+export const dynamic = 'force-dynamic';
+
 interface HuzurDashboardProps {
   params: Promise<{ locale: string }>;
 }

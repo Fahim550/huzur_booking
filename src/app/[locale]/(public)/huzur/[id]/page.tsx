@@ -15,7 +15,7 @@ import { Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { fetchHuzurById } from '@/lib/queries/huzurs';
 import { fetchConfirmedBookingsForConflictCheck } from '@/lib/queries/bookings';
 import { fetchDivisions, fetchDistricts, fetchUpazilas } from '@/lib/queries/locations';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 import { FALLBACK_SEARCH_HUZURS } from '@/lib/queries/searchHuzurs';
 import { SEED_HUZURS } from '@/lib/data/mockData';
 import HuzurProfileClient from '@/components/huzur/HuzurProfileClient';
@@ -70,7 +70,7 @@ export default async function HuzurProfilePage({ params }: HuzurProfilePageProps
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const isBn = locale === 'bn';
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   // 1. Fetch Huzur details
   let huzur = await fetchHuzurById(supabase, id);
@@ -148,7 +148,7 @@ export default async function HuzurProfilePage({ params }: HuzurProfilePageProps
               }
               alt={huzur.name}
               fill
-              sizes="112px"
+              sizes="(max-width: 640px) 96px, 112px"
               priority
               className="object-cover"
             />

@@ -3,6 +3,9 @@ import { Plus, ArrowLeft, CheckCircle, Clock, AlertCircle, FileText } from 'luci
 import { Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 
+// Private dashboard: Prevent caching into shared CDN layers
+export const dynamic = 'force-dynamic';
+
 interface OrganizerDashboardProps {
   params: Promise<{ locale: string }>;
 }

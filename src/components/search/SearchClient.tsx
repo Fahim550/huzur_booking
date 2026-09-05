@@ -403,7 +403,7 @@ export default function SearchClient({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {allHuzurs.map((huzur) => {
+          {allHuzurs.map((huzur, idx) => {
             const districtName =
               isBn
                 ? huzur.home_district?.bn_name || huzur.home_district?.name || 'বাংলাদেশ'
@@ -425,7 +425,8 @@ export default function SearchClient({
                         }
                         alt={huzur.name}
                         fill
-                        sizes="72px"
+                        priority={idx < 2}
+                        sizes="(max-width: 640px) 64px, 72px"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>

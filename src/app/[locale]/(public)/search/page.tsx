@@ -3,7 +3,7 @@ import { Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { searchHuzurs } from '@/lib/queries/searchHuzurs';
 import { fetchDivisions, fetchDistricts, fetchUpazilas } from '@/lib/queries/locations';
 import { fetchSpecialties } from '@/lib/queries/specialties';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 import SearchClient from '@/components/search/SearchClient';
 
 // Next.js ISR: 60-second revalidation for public search listings
@@ -55,7 +55,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const q = sp.q;
   const page = sp.page ? Number(sp.page) : 1;
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   // Initial SSR data fetching directly via lib/queries
   const [searchResponse, divisions, districts, upazilas, specialties] = await Promise.all([

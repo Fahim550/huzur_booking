@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { searchHuzurs } from '@/lib/queries/searchHuzurs';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
     const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 12;
 
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const result = await searchHuzurs(
       {
         divisionId,

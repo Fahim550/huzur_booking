@@ -4,11 +4,17 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { fetchHuzursForVerification, updateHuzurVerification } from '@/lib/queries/admin';
 
+export const dynamic = 'force-dynamic';
+
+const PRIVATE_HEADERS = {
+  'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate',
+};
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const huzurs = await fetchHuzursForVerification(supabase);
-    return NextResponse.json({ data: huzurs });
+    return NextResponse.json({ data: huzurs }, { headers: PRIVATE_HEADERS });
   } catch (err: any) {
     console.error('API Admin Huzurs GET Error:', err);
     return NextResponse.json(
@@ -41,6 +47,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     try {
+      revalidateTag('search-results', 'max');
       revalidateTag(`huzur-${huzur_id}`, 'max');
     } catch {}
 

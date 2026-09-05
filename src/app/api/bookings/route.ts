@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/rateLimit';
 import {
   fetchBookingsByHuzur,
   fetchBookingsByOrganizer,
@@ -13,6 +14,12 @@ import {
 } from '@/lib/queries/bookings';
 import type { Inserts } from '@/types/database';
 
+export const dynamic = 'force-dynamic';
+
+const PRIVATE_CACHE_HEADERS = {
+  'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate',
+};
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const huzurId = searchParams.get('huzurId');
@@ -23,17 +30,17 @@ export async function GET(request: NextRequest) {
 
   if (conflictCheckOnly && huzurId) {
     const dates = await fetchConfirmedBookingsForConflictCheck(supabase, huzurId);
-    return NextResponse.json({ data: dates });
+    return NextResponse.json({ data: dates }, { headers: PRIVATE_CACHE_HEADERS });
   }
 
   if (huzurId) {
     const result = await fetchBookingsByHuzur(supabase, huzurId);
-    return NextResponse.json(result);
+    return NextResponse.json(result, { headers: PRIVATE_CACHE_HEADERS });
   }
 
   if (organizerId) {
     const result = await fetchBookingsByOrganizer(supabase, organizerId);
-    return NextResponse.json(result);
+    return NextResponse.json(result, { headers: PRIVATE_CACHE_HEADERS });
   }
 
   return NextResponse.json({ error: 'huzurId or organizerId is required' }, { status: 400 });
@@ -55,6 +62,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'huzur_id, event_date, and venue_address are required' },
         { status: 400 }
+      );
+    }
+
+    // Rate limiting: 5 requests per hour per phone number or IP
+    const phone = body.contact_phone || 'anonymous';
+    const forwarded = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    const ip = forwarded.split(',')[0].trim();
+    const rateLimitKey = `${phone}_${ip}`;
+    const rateCheck = await rateLimit(rateLimitKey, 5, 3600);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: 'অতিরিক্ত বুকিং অনুরোধ করা হয়েছে। অনুগ্রহ করে ১ ঘণ্টা পর আবার চেষ্টা করুন।',
+          code: 'RATE_LIMIT_EXCEEDED',
+          retryAfterSeconds: rateCheck.retryAfter,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.retryAfter),
+            'X-RateLimit-Limit': String(rateCheck.limit),
+            'X-RateLimit-Remaining': String(rateCheck.remaining),
+            'X-RateLimit-Reset': String(rateCheck.reset),
+          },
+        }
       );
     }
 
@@ -133,14 +166,18 @@ export async function POST(request: NextRequest) {
       console.warn('Notification trigger warning:', notifErr);
     }
 
-    // 6. Invalidate edge & profile cache tags so calendar reflects pending booking
+    // 6. Invalidate edge, profile, and search cache tags immediately
     try {
+      revalidateTag('search-results', 'max');
       revalidateTag(`huzur-${huzur_id}`, 'max');
     } catch (revalErr) {
       console.warn('Revalidate error:', revalErr);
     }
 
     try {
+      revalidatePath('/bn/search');
+      revalidatePath('/en/search');
+      revalidatePath('/search');
       revalidatePath(`/bn/huzur/${huzur_id}`);
       revalidatePath(`/en/huzur/${huzur_id}`);
       revalidatePath(`/huzur/${huzur_id}`);

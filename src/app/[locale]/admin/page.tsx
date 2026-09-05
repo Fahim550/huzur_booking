@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -467,11 +468,15 @@ export default function AdminDashboardPage() {
                 >
                   <div className="flex items-start sm:items-center gap-3.5">
                     {huzur.photo_url ? (
-                      <img
-                        src={huzur.photo_url}
-                        alt={huzur.name}
-                        className="w-13 h-13 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700 shrink-0"
-                      />
+                      <div className="relative w-13 h-13 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
+                        <Image
+                          src={huzur.photo_url}
+                          alt={huzur.name}
+                          fill
+                          sizes="52px"
+                          className="object-cover"
+                        />
+                      </div>
                     ) : (
                       <div className="w-13 h-13 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold shrink-0">
                         {huzur.name.slice(0, 1)}

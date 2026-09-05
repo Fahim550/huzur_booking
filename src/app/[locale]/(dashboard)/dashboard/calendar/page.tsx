@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: 'বক্তার মাহফিল শিডিউল ও সরাসরি বুকিং আবেদন সমন্বয় ড্যাশবোর্ড',
 };
 
+// Private dashboard: Prevent caching into shared CDN layers
+export const dynamic = 'force-dynamic';
+
 interface CalendarPageProps {
   params: Promise<{ locale: string }>;
 }

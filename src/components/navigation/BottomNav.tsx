@@ -152,6 +152,7 @@ export default function BottomNav({ locale = 'bn' }: BottomNavProps) {
             <Link
               key={item.name + item.href}
               href={item.href}
+              prefetch={false}
               className={clsx(
                 'group flex flex-col items-center justify-center min-h-[48px] min-w-[44px] py-1 px-0.5 rounded-xl transition-all duration-200 active:scale-95',
                 isActive

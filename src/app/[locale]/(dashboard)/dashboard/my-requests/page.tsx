@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -351,11 +352,15 @@ export default function OrganizerMyRequestsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {speakerPhoto ? (
-                      <img
-                        src={speakerPhoto}
-                        alt={speakerName}
-                        className="w-12 h-12 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700 shrink-0"
-                      />
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
+                        <Image
+                          src={speakerPhoto}
+                          alt={speakerName}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      </div>
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold shrink-0">
                         <User className="w-6 h-6" />
