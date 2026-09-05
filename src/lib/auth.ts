@@ -1,6 +1,6 @@
 import { createClient as createBrowserSupabase } from '@/lib/supabase/client';
 
-export type UserRole = 'huzur' | 'organizer' | 'manager';
+export type UserRole = 'huzur' | 'organizer' | 'manager' | 'admin';
 
 export interface AuthSessionUser {
   id: string;
@@ -167,11 +167,18 @@ export async function verifyPhoneOtp(
     const assignedRole = role || (sessionStorage.getItem('hb_pending_role') as UserRole) || 'organizer';
     const mockId = `demo-${formatted.replace(/\+/g, '')}`;
 
+    const demoName =
+      assignedRole === 'admin'
+        ? 'সিস্টেম অ্যাডমিনিস্ট্রেটর'
+        : assignedRole === 'huzur'
+        ? 'মাওলানা শায়খ আহমাদুল্লাহ'
+        : 'হাজী মো: রফিকুল ইসলাম';
+
     const demoUser: AuthSessionUser = {
       id: mockId,
       phone: formatted,
       role: assignedRole,
-      name: assignedRole === 'huzur' ? 'মাওলানা শায়খ আহমাদুল্লাহ' : 'হাজী মো: রফিকুল ইসলাম',
+      name: demoName,
       isDemo: true,
     };
 

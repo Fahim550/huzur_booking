@@ -30,7 +30,7 @@ async function handleProxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://demo-huzur-booking.supabase.co';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'demo-anon-key-placeholder';
 
-  let authenticatedUser: { id: string; role: 'huzur' | 'organizer' | 'manager' } | null = null;
+  let authenticatedUser: { id: string; role: 'huzur' | 'organizer' | 'manager' | 'admin' } | null = null;
 
   // Check demo cookie fallback for local development without active external SMS gateway
   const demoCookie = request.cookies.get('hb_demo_auth_session')?.value;
@@ -40,7 +40,7 @@ async function handleProxy(request: NextRequest) {
       if (parsed?.id) {
         authenticatedUser = {
           id: parsed.id,
-          role: parsed.role === 'huzur' ? 'huzur' : 'organizer',
+          role: parsed.role || (parsed.role === 'huzur' ? 'huzur' : 'organizer'),
         };
       }
     } catch {
@@ -71,7 +71,7 @@ async function handleProxy(request: NextRequest) {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const role = (user.user_metadata?.role as 'huzur' | 'organizer') || 'organizer';
+        const role = (user.user_metadata?.role as 'huzur' | 'organizer' | 'manager' | 'admin') || 'organizer';
         authenticatedUser = {
           id: user.id,
           role,
@@ -82,7 +82,21 @@ async function handleProxy(request: NextRequest) {
     }
   }
 
-  // 3. Protect /(dashboard) routes
+  // 3. Role-gated /admin route protection
+  const isAdminRoute = subPath === '/admin' || subPath.startsWith('/admin/');
+  if (isAdminRoute) {
+    if (!authenticatedUser) {
+      const loginUrl = new URL(`/${locale}/login`, request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (authenticatedUser.role !== 'admin') {
+      return NextResponse.redirect(new URL(`/${locale}?error=unauthorized_admin`, request.url));
+    }
+  }
+
+  // 4. Protect /(dashboard) routes
   const isDashboardRoute = subPath === '/dashboard' || subPath.startsWith('/dashboard/');
 
   if (isDashboardRoute) {
@@ -98,7 +112,12 @@ async function handleProxy(request: NextRequest) {
 
     // Generic /dashboard visits -> redirect to specific dashboard
     if (subPath === '/dashboard' || subPath === '/dashboard/') {
-      const targetPath = role === 'huzur' ? `/${locale}/dashboard/huzur` : `/${locale}/dashboard/organizer`;
+      const targetPath =
+        role === 'admin'
+          ? `/${locale}/admin`
+          : role === 'huzur'
+          ? `/${locale}/dashboard/huzur`
+          : `/${locale}/dashboard/organizer`;
       return NextResponse.redirect(new URL(targetPath, request.url));
     }
 
@@ -114,14 +133,21 @@ async function handleProxy(request: NextRequest) {
     if (subPath.startsWith('/dashboard/organizer') && role === 'huzur') {
       return NextResponse.redirect(new URL(`/${locale}/dashboard/huzur`, request.url));
     }
+
+    if (subPath.startsWith('/dashboard/my-requests') && role === 'huzur') {
+      return NextResponse.redirect(new URL(`/${locale}/dashboard/huzur`, request.url));
+    }
   }
 
-  // 4. Redirect already authenticated users away from /login and /register
+  // 5. Redirect already authenticated users away from /login and /register
   const isAuthRoute = subPath === '/login' || subPath === '/register';
   if (isAuthRoute && authenticatedUser) {
-    const targetPath = authenticatedUser.role === 'huzur'
-      ? `/${locale}/dashboard/huzur`
-      : `/${locale}/dashboard/organizer`;
+    const targetPath =
+      authenticatedUser.role === 'admin'
+        ? `/${locale}/admin`
+        : authenticatedUser.role === 'huzur'
+        ? `/${locale}/dashboard/huzur`
+        : `/${locale}/dashboard/organizer`;
     return NextResponse.redirect(new URL(targetPath, request.url));
   }
 

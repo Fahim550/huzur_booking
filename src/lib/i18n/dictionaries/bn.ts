@@ -9,8 +9,10 @@ export const bn = {
   nav: {
     search: 'অনুসন্ধান',
     myBookings: 'বুকিং সমূহ',
+    myRequests: 'আমার আবেদন',
     availability: 'প্রাপ্যতা',
     profile: 'প্রোফাইল',
+    admin: 'অ্যাডমিন',
     langToggle: 'English',
     langShort: 'EN',
   },

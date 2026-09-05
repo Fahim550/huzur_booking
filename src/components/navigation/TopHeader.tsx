@@ -8,6 +8,9 @@ import { Locale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 import LanguageSwitcher from './LanguageSwitcher';
 
+import { useState, useEffect } from 'react';
+import { getClientUser, UserRole } from '@/lib/auth';
+
 interface TopHeaderProps {
   locale?: Locale;
 }
@@ -15,13 +18,65 @@ interface TopHeaderProps {
 export default function TopHeader({ locale = 'bn' }: TopHeaderProps) {
   const pathname = usePathname();
   const dict = getDictionary(locale);
+  const [role, setRole] = useState<UserRole | 'guest'>('guest');
 
-  const navLinks = [
-    { name: dict.nav.search, href: `/${locale}/search`, icon: Search },
-    { name: dict.nav.myBookings, href: `/${locale}/my-bookings`, icon: CalendarCheck },
-    { name: dict.nav.availability, href: `/${locale}/availability`, icon: CalendarDays },
-    { name: dict.nav.profile, href: `/${locale}/profile`, icon: User },
-  ];
+  useEffect(() => {
+    getClientUser().then((u) => {
+      if (u?.role) setRole(u.role);
+    });
+
+    const handleStorage = () => {
+      const stored = localStorage.getItem('hb_current_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed?.role) setRole(parsed.role);
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const getNavLinks = () => {
+    const searchLink = { name: dict.nav.search, href: `/${locale}/search`, icon: Search };
+
+    let bookingsLink = { name: dict.nav.myBookings, href: `/${locale}/my-bookings`, icon: CalendarCheck };
+    if (role === 'organizer') {
+      bookingsLink = {
+        name: dict.nav.myRequests || (locale === 'bn' ? 'আমার আবেদন' : 'My Requests'),
+        href: `/${locale}/dashboard/my-requests`,
+        icon: CalendarCheck,
+      };
+    } else if (role === 'huzur' || role === 'manager') {
+      bookingsLink = {
+        name: dict.nav.myBookings || (locale === 'bn' ? 'বুকিং সমূহ' : 'My Bookings'),
+        href: `/${locale}/dashboard/huzur`,
+        icon: CalendarCheck,
+      };
+    } else if (role === 'admin') {
+      bookingsLink = {
+        name: dict.nav.admin || (locale === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel'),
+        href: `/${locale}/admin`,
+        icon: ShieldCheck,
+      };
+    }
+
+    let availabilityLink = { name: dict.nav.availability, href: `/${locale}/availability`, icon: CalendarDays };
+    if (role === 'admin') {
+      availabilityLink = {
+        name: locale === 'bn' ? 'রিপোর্ট' : 'Reports',
+        href: `/${locale}/admin`,
+        icon: CalendarDays,
+      };
+    }
+
+    const profileLink = { name: dict.nav.profile, href: `/${locale}/profile`, icon: User };
+
+    return [searchLink, bookingsLink, availabilityLink, profileLink];
+  };
+
+  const navLinks = getNavLinks();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-emerald-100 dark:border-emerald-950/60 transition-colors">

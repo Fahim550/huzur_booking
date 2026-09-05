@@ -40,13 +40,20 @@ export default async function OrganizerDashboard({ params }: OrganizerDashboardP
                   : 'Track and manage your submitted speaking invitations'}
               </p>
             </div>
-            <div>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/${locale}/dashboard/my-requests`}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm min-h-[44px]"
+              >
+                <Clock className="w-4 h-4" />
+                <span>{locale === 'bn' ? 'আবেদন তালিকা দেখুন' : 'View My Requests'}</span>
+              </Link>
               <Link
                 href={`/${locale}/search`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-zinc-900 hover:bg-zinc-100 rounded-xl text-sm font-semibold transition-colors shadow-sm min-h-[44px]"
               >
                 <Plus className="w-4 h-4" />
-                <span>{locale === 'bn' ? 'নতুন বক্তা খুঁজুন' : 'Find Speakers'}</span>
+                <span>{locale === 'bn' ? 'বক্তা খুঁজুন' : 'Find Speakers'}</span>
               </Link>
             </div>
           </div>

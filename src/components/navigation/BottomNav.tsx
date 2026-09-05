@@ -1,11 +1,21 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, CalendarCheck, CalendarDays, User } from 'lucide-react';
+import {
+  Search,
+  CalendarCheck,
+  CalendarDays,
+  User,
+  Clock,
+  ShieldCheck,
+  BarChart3,
+} from 'lucide-react';
 import clsx from 'clsx';
 import { Locale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
+import { getClientUser, UserRole } from '@/lib/auth';
 import LanguageSwitcher from './LanguageSwitcher';
 
 interface BottomNavProps {
@@ -15,33 +25,115 @@ interface BottomNavProps {
 export default function BottomNav({ locale = 'bn' }: BottomNavProps) {
   const pathname = usePathname();
   const dict = getDictionary(locale);
+  const [role, setRole] = useState<UserRole | 'guest'>('guest');
 
-  const navItems = [
-    {
+  useEffect(() => {
+    // Check client user role
+    getClientUser().then((u) => {
+      if (u?.role) {
+        setRole(u.role);
+      }
+    });
+
+    // Listen for storage events (e.g. role switch in profile or demo login)
+    const handleStorage = () => {
+      const stored = localStorage.getItem('hb_current_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed?.role) setRole(parsed.role);
+        } catch {}
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Adapt 4 primary items based on logged-in role
+  const getNavItems = () => {
+    // 1. Search
+    const searchItem = {
       name: dict.nav.search,
       href: `/${locale}/search`,
       exactMatchPrefix: `/${locale}/search`,
       icon: Search,
-    },
-    {
+    };
+
+    // 2. My Bookings-or-Requests
+    let bookingsOrRequestsItem = {
       name: dict.nav.myBookings,
       href: `/${locale}/my-bookings`,
       exactMatchPrefix: `/${locale}/my-bookings`,
       icon: CalendarCheck,
-    },
-    {
+    };
+
+    if (role === 'organizer') {
+      bookingsOrRequestsItem = {
+        name: dict.nav.myRequests || (locale === 'bn' ? 'আমার আবেদন' : 'My Requests'),
+        href: `/${locale}/dashboard/my-requests`,
+        exactMatchPrefix: `/${locale}/dashboard/my-requests`,
+        icon: Clock,
+      };
+    } else if (role === 'huzur' || role === 'manager') {
+      bookingsOrRequestsItem = {
+        name: dict.nav.myBookings || (locale === 'bn' ? 'বুকিং সমূহ' : 'My Bookings'),
+        href: `/${locale}/dashboard/huzur`,
+        exactMatchPrefix: `/${locale}/dashboard/huzur`,
+        icon: CalendarCheck,
+      };
+    } else if (role === 'admin') {
+      bookingsOrRequestsItem = {
+        name: dict.nav.admin || (locale === 'bn' ? 'অ্যাডমিন' : 'Admin'),
+        href: `/${locale}/admin`,
+        exactMatchPrefix: `/${locale}/admin`,
+        icon: ShieldCheck,
+      };
+    }
+
+    // 3. Post Availability
+    let availabilityItem = {
       name: dict.nav.availability,
       href: `/${locale}/availability`,
       exactMatchPrefix: `/${locale}/availability`,
       icon: CalendarDays,
-    },
-    {
+    };
+
+    if (role === 'huzur' || role === 'manager') {
+      availabilityItem = {
+        name: locale === 'bn' ? 'প্রাপ্যতা ঘোষণা' : 'Post Availability',
+        href: `/${locale}/availability`,
+        exactMatchPrefix: `/${locale}/availability`,
+        icon: CalendarDays,
+      };
+    } else if (role === 'organizer') {
+      availabilityItem = {
+        name: locale === 'bn' ? 'বক্তার শিডিউল' : 'Schedules',
+        href: `/${locale}/availability`,
+        exactMatchPrefix: `/${locale}/availability`,
+        icon: CalendarDays,
+      };
+    } else if (role === 'admin') {
+      availabilityItem = {
+        name: locale === 'bn' ? 'রিপোর্ট' : 'Reports',
+        href: `/${locale}/admin`,
+        exactMatchPrefix: `/${locale}/admin`,
+        icon: BarChart3,
+      };
+    }
+
+    // 4. Profile
+    const profileItem = {
       name: dict.nav.profile,
       href: `/${locale}/profile`,
       exactMatchPrefix: `/${locale}/profile`,
       icon: User,
-    },
-  ];
+    };
+
+    return [searchItem, bookingsOrRequestsItem, availabilityItem, profileItem];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <nav
@@ -58,7 +150,7 @@ export default function BottomNav({ locale = 'bn' }: BottomNavProps) {
 
           return (
             <Link
-              key={item.href}
+              key={item.name + item.href}
               href={item.href}
               className={clsx(
                 'group flex flex-col items-center justify-center min-h-[48px] min-w-[44px] py-1 px-0.5 rounded-xl transition-all duration-200 active:scale-95',

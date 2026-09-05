@@ -9,8 +9,10 @@ export const en: Dictionary = {
   nav: {
     search: 'Search',
     myBookings: 'My Bookings',
+    myRequests: 'My Requests',
     availability: 'Availability',
     profile: 'Profile',
+    admin: 'Admin',
     langToggle: 'বাংলা',
     langShort: 'বাং',
   },
