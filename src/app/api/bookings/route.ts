@@ -12,6 +12,7 @@ import {
   findNearestOpenDates,
   createNotification,
 } from '@/lib/queries/bookings';
+import { sendSms } from '@/lib/sms';
 import type { Inserts } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -146,22 +147,64 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    // 5. Trigger notification insert for the Huzur / Coordinator
+    // 5. Trigger notification and SMS delivery for the Huzur and Delegate Managers
     try {
-      // Look up huzur's user_id if available
+      // Look up huzur's user_id & phone
       const { data: huzurData } = await supabase
         .from('huzurs')
-        .select('user_id, name')
+        .select('user_id, name, phone')
         .eq('id', huzur_id)
         .single();
 
-      const targetUserId = (huzurData as any)?.user_id || '00000000-0000-0000-0000-000000000011';
+      const huzurUserId = (huzurData as any)?.user_id || '00000000-0000-0000-0000-000000000011';
+      const huzurPhone = (huzurData as any)?.phone;
+      const notifMessage = `নতুন মাহফিল বুকিং অনুরোধ এসেছে: ${event_date} তারিখে ${venue_address}`;
+
+      // Notify Huzur
       await createNotification(supabase, {
-        userId: targetUserId,
+        userId: huzurUserId,
         type: 'booking_request',
-        message: `নতুন মাহফিল বুকিং অনুরোধ এসেছে: ${event_date} তারিখে ${venue_address}`,
+        message: notifMessage,
         relatedBookingId: booking?.id || null,
       });
+
+      // Notify delegate managers
+      const { data: managersData } = await supabase
+        .from('managers')
+        .select('user_id, phone')
+        .eq('huzur_id', huzur_id);
+
+      const managers = (managersData as any[]) || [];
+      if (Array.isArray(managers)) {
+        for (const mgr of managers) {
+          if (mgr?.user_id) {
+            await createNotification(supabase, {
+              userId: mgr.user_id,
+              type: 'booking_request',
+              message: notifMessage,
+              relatedBookingId: booking?.id || null,
+            });
+          }
+          if (mgr.phone) {
+            await sendSms({
+              to: mgr.phone,
+              text: notifMessage,
+              bookingId: booking?.id,
+              metadata: { role: 'manager', type: 'booking_request' },
+            });
+          }
+        }
+      }
+
+      // Deliver SMS to Huzur
+      if (huzurPhone) {
+        await sendSms({
+          to: huzurPhone,
+          text: notifMessage,
+          bookingId: booking?.id,
+          metadata: { role: 'huzur', type: 'booking_request' },
+        });
+      }
     } catch (notifErr) {
       console.warn('Notification trigger warning:', notifErr);
     }

@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { updateBookingStatus } from '@/lib/queries/bookings';
+import { insertNotificationRecord } from '@/lib/queries/notifications';
+import { sendSms } from '@/lib/sms';
 import type { BookingStatus } from '@/types/database';
 
 export async function PATCH(
@@ -25,6 +27,44 @@ export async function PATCH(
 
     if (error || !booking) {
       return NextResponse.json({ error: error || 'Failed to update booking status' }, { status: 400 });
+    }
+
+    // Trigger notification and SMS delivery to Organizer upon confirmation or rejection
+    if (status === 'confirmed' || status === 'rejected') {
+      try {
+        const { data: orgData } = await supabase
+          .from('organizers')
+          .select('user_id, phone, name')
+          .eq('id', booking.organizer_id)
+          .single();
+
+        const orgUserId = (orgData as any)?.user_id || 'b1111111-1111-1111-1111-111111111111';
+        const orgPhone = (orgData as any)?.phone || '+8801811111111';
+        const notifType = status === 'confirmed' ? 'booking_confirmed' : 'booking_rejected';
+        const notifMessage =
+          status === 'confirmed'
+            ? `আলহামদুলিল্লাহ! আপনার মাহফিল বুকিং আবেদনটি নিশ্চিত করা হয়েছে (${booking.event_date} - ${booking.venue_address})`
+            : `দুঃখিত, আপনার মাহফিল বুকিং আবেদনটি বাতিল করা হয়েছে (${booking.event_date})`;
+
+        await insertNotificationRecord(supabase, {
+          userId: orgUserId,
+          type: notifType,
+          message: notifMessage,
+          relatedBookingId: booking.id,
+          sentAt: new Date().toISOString(),
+        });
+
+        if (orgPhone) {
+          await sendSms({
+            to: orgPhone,
+            text: notifMessage,
+            bookingId: booking.id,
+            metadata: { type: notifType, status },
+          });
+        }
+      } catch (notifErr) {
+        console.warn('Status change notification warning:', notifErr);
+      }
     }
 
     // Revalidate huzur profile, calendar, and search listings

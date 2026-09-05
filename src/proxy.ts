@@ -11,6 +11,13 @@ export function proxy(request: NextRequest) {
 }
 
 async function handleProxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Bypass i18n and auth redirection for internal API and Next.js asset routes
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next')) {
+    return NextResponse.next();
+  }
+
   // 1. First run next-intl internationalization routing
   const i18nResponse = handleI18nRouting(request);
 
@@ -18,8 +25,6 @@ async function handleProxy(request: NextRequest) {
   if (i18nResponse.headers.get('Location')) {
     return i18nResponse;
   }
-
-  const { pathname } = request.nextUrl;
 
   // Extract locale and path after locale: e.g. /bn/dashboard/huzur -> locale: bn, subPath: /dashboard/huzur
   const match = pathname.match(/^\/(bn|en)(\/.*)?$/);

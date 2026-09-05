@@ -26,6 +26,7 @@ import { Locale, isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 import { getClientUser, AuthSessionUser } from '@/lib/auth';
 import { SEED_BOOKINGS } from '@/lib/data/mockData';
+import NotificationBell from '@/components/navigation/NotificationBell';
 
 export default function OrganizerMyRequestsPage() {
   const params = useParams();
@@ -152,8 +153,11 @@ export default function OrganizerMyRequestsPage() {
           <span>{locale === 'bn' ? 'আয়োজক ড্যাশবোর্ড' : 'Organizer Dashboard'}</span>
         </Link>
 
-        {/* Live Auto-Refetch Badge & Manual Refresh */}
+        {/* Live Auto-Refetch Badge, Notification Bell & Manual Refresh */}
         <div className="flex items-center gap-2">
+          {/* Notification Bell */}
+          <NotificationBell locale={locale} />
+
           <div
             className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 rounded-full text-[11px] font-medium text-emerald-700 dark:text-emerald-300"
             title="TanStack Query background auto-refetch interval is 30s"

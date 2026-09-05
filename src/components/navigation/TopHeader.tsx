@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { Locale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 import LanguageSwitcher from './LanguageSwitcher';
+import NotificationBell from './NotificationBell';
 
 import { useState, useEffect } from 'react';
 import { getClientUser, UserRole } from '@/lib/auth';
@@ -129,8 +130,11 @@ export default function TopHeader({ locale = 'bn' }: TopHeaderProps) {
           })}
         </nav>
 
-        {/* Right Actions: Desktop Language Switcher + Support Hotline + CTA */}
-        <div className="flex items-center gap-2">
+        {/* Right Actions: Notification Bell + Desktop Language Switcher + Support Hotline + CTA */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* In-App Notification Bell with 30s Polling */}
+          <NotificationBell locale={locale} />
+
           {/* Header Language Switcher (Visible on all viewports) */}
           <LanguageSwitcher currentLocale={locale} variant="header" />
 

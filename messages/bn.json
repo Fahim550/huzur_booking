@@ -141,10 +141,13 @@
     "totalBookings": "মোট বুকিং",
     "actionApprove": "অনুমোদন করুন",
     "actionReject": "প্রত্যাখ্যান করুন",
-    "rejectionReason": "বাতিলের কারণ উল্লেখ করুন",
     "quickStats": "এক নজরে পরিসংখ্যান",
     "manageSchedule": "শিডিউল ও প্রাপ্যতা পরিচালনা",
-    "notifications": "বিজ্ঞপ্তি সমূহ"
+    "notifications": "বিজ্ঞপ্তি সমূহ",
+    "markAllAsRead": "সবগুলো পড়া হয়েছে",
+    "noNotifications": "কোনো নতুন বিজ্ঞপ্তি নেই",
+    "allCaughtUp": "আপনার সকল বিজ্ঞপ্তি হালনাগাদ রয়েছে",
+    "pollingActive": "প্রতি ৩০ সেকেন্ডে স্বয়ংক্রিয় হালনাগাদ"
   },
   "profile": {
     "title": "প্রোফাইল সেটিংস",

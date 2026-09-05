@@ -31,6 +31,7 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
       ['admin-metrics'],
       ['admin-huzur-queue'],
       ['my-bookings'],
+      ['notifications'],
     ];
     for (const key of dashboardQueryKeys) {
       client.setQueryDefaults(key, {

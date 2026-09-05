@@ -26,6 +26,7 @@ import { Locale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/getDictionary';
 import { getClientUser, AuthSessionUser } from '@/lib/auth';
 import { SEED_BOOKINGS } from '@/lib/data/mockData';
+import NotificationBell from '@/components/navigation/NotificationBell';
 
 interface HuzurDashboardHomeClientProps {
   locale: Locale;
@@ -186,6 +187,9 @@ export default function HuzurDashboardHomeClient({
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="bg-white/10 dark:bg-zinc-800/60 rounded-xl border border-white/15">
+              <NotificationBell locale={locale} />
+            </div>
             <Link
               href={`/${locale}/dashboard/calendar`}
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors shadow-sm flex items-center gap-1.5 min-h-[44px]"
